@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 @Injectable()
 export class NotificationsService {
   constructor(
@@ -13,7 +14,15 @@ export class NotificationsService {
     return this.repo.find({ relations: ['user'] });
   }
 
-  create(data: Partial<Notification>) {
-    return this.repo.save(this.repo.create(data));
+  async create(dto: CreateNotificationDto) {
+    const notif = this.repo.create({
+      title: dto.title,
+      message: dto.message,
+      type: dto.type,
+      is_read: dto.is_read ?? false,
+      user: { user_id: dto.user_id },
+    });
+
+    return this.repo.save(notif);
   }
 }

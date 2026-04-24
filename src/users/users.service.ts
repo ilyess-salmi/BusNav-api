@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -22,8 +23,16 @@ export class UsersService {
     });
   }
 
-  create(data: Partial<User>) {
-    return this.repo.save(this.repo.create(data));
+  async create(dto: CreateUserDto) {
+    const user = this.repo.create({
+      user_name: dto.user_name,
+      user_email: dto.user_email,
+      user_password: dto.user_password,
+      user_phone: dto.user_phone,
+      role: { role_id: dto.role_id },
+    });
+
+    return this.repo.save(user);
   }
 
   update(id: number, data: Partial<User>) {

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BusStop } from './entities/bus-stop.entity';
+import { CreateBusStopDto } from './dto/create-bus-stop.dto';
 
 @Injectable()
 export class BusStopsService {
@@ -14,7 +15,7 @@ export class BusStopsService {
     return this.repo.find({ relations: ['services', 'passes'] });
   }
 
-  create(data: Partial<BusStop>) {
-    return this.repo.save(this.repo.create(data));
+  create(dto: CreateBusStopDto) {
+    return this.repo.save(this.repo.create(dto));
   }
 }

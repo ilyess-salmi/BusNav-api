@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Pass } from './entities/pass.entity';
+import { CreatePassDto } from './dto/create-pass.dto';
 
 @Injectable()
 export class PassesService {
@@ -14,7 +15,12 @@ export class PassesService {
     return this.repo.find({ relations: ['bus', 'stop'] });
   }
 
-  create(data: Partial<Pass>) {
-    return this.repo.save(this.repo.create(data));
+  async create(dto: CreatePassDto) {
+    const pass = this.repo.create({
+      bus: { bus_id: dto.bus_id },
+      stop: { stop_id: dto.stop_id },
+    });
+
+    return this.repo.save(pass);
   }
 }

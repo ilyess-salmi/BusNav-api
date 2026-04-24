@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
+import { CreateRoleDto } from './dto/create-role.dto';
 @Injectable()
 export class RolesService {
   constructor(
@@ -13,7 +14,7 @@ export class RolesService {
     return this.repo.find({ relations: ['users'] });
   }
 
-  create(data: Partial<Role>) {
-    return this.repo.save(this.repo.create(data));
+  create(dto: CreateRoleDto) {
+    return this.repo.save(this.repo.create(dto));
   }
 }
