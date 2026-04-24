@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { PassesService } from './passes.service';
 import { CreatePassDto } from './dto/create-pass.dto';
-// import { UpdatePassDto } from './dto/update-pass.dto';
+import { UpdatePassDto } from './dto/update-pass.dto';
 @Controller('passes')
 export class PassesController {
   constructor(private readonly passesService: PassesService) {}
@@ -16,18 +24,18 @@ export class PassesController {
     return this.passesService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.passesService.findOne(+id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.passesService.findOne(+id);
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updatePassDto: UpdatePassDto) {
-  //   return this.passesService.update(+id, updatePassDto);
-  // }
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updatePassDto: UpdatePassDto) {
+    return this.passesService.update(+id, updatePassDto);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.passesService.remove(+id);
-  // }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.passesService.remove(+id);
+  }
 }

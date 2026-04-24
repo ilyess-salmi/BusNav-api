@@ -15,30 +15,30 @@ import { Role } from 'src/roles/entities/role.entity';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
-  user_id: number;
+  user_id!: number;
 
   @Column({ length: 100 })
-  user_name: string;
+  user_name!: string;
 
   @Column({ unique: true, length: 150 })
-  user_email: string;
+  user_email!: string;
 
   @Column({ length: 255 })
-  user_password: string;
+  user_password!: string;
 
   @Column({ length: 20, nullable: true })
-  user_phone: string;
+  user_phone!: string;
 
   @ManyToOne(() => Role, (role) => role.users, { nullable: false })
   @JoinColumn({ name: 'role_id' })
-  role: Role;
+  role!: Role;
 
   @OneToOne(() => Driver, (driver) => driver.user)
   driverProfile?: Driver;
 
   @OneToMany(() => FavoritePlace, (favorite) => favorite.user)
-  favoritePlaces: FavoritePlace[];
+  favoritePlaces!: FavoritePlace[];
 
   @OneToMany(() => Notification, (notification) => notification.user)
-  notifications: Notification[];
+  notifications!: Notification[];
 }

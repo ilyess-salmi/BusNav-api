@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BusLocationsService } from './bus-locations.service';
 import { CreateBusLocationDto } from './dto/create-bus-location.dto';
-// import { UpdateBusLocationDto } from './dto/update-bus-location.dto';
+import { UpdateBusLocationDto } from './dto/update-bus-location.dto';
 
 @Controller('bus-locations')
 export class BusLocationsController {
@@ -17,18 +25,21 @@ export class BusLocationsController {
     return this.busLocationsService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.busLocationsService.findOne(+id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.busLocationsService.findOne(+id);
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateBusLocationDto: UpdateBusLocationDto) {
-  //   return this.busLocationsService.update(+id, updateBusLocationDto);
-  // }
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateBusLocationDto: UpdateBusLocationDto,
+  ) {
+    return this.busLocationsService.update(+id, updateBusLocationDto);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.busLocationsService.remove(+id);
-  // }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.busLocationsService.remove(+id);
+  }
 }

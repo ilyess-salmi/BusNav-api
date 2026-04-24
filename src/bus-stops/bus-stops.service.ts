@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BusStop } from './entities/bus-stop.entity';
 import { CreateBusStopDto } from './dto/create-bus-stop.dto';
+import { UpdateBusStopDto } from './dto/update-bus-stop.dto';
 
 @Injectable()
 export class BusStopsService {
@@ -17,5 +18,20 @@ export class BusStopsService {
 
   create(dto: CreateBusStopDto) {
     return this.repo.save(this.repo.create(dto));
+  }
+
+  findOne(id: number) {
+    return this.repo.findOne({
+      where: { stop_id: id },
+      relations: ['services', 'passes'],
+    });
+  }
+
+  update(id: number, dto: UpdateBusStopDto) {
+    return this.repo.update(id, dto);
+  }
+
+  remove(id: number) {
+    return this.repo.delete(id);
   }
 }

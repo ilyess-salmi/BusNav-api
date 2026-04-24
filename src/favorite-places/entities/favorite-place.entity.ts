@@ -1,20 +1,29 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { User } from "src/users/entities/user.entity";
+import { 
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 @Entity('favorite_places')
 export class FavoritePlace {
   @PrimaryGeneratedColumn()
-  favorite_id: number;
+  favorite_id!: number;
 
   @Column({ length: 100 })
-  favorite_name: string;
+  favorite_name!: string;
 
   @Column('decimal', { precision: 10, scale: 7 })
-  latitude: number;
+  latitude!: number;
 
   @Column('decimal', { precision: 10, scale: 7 })
-  longitude: number;
+  longitude!: number;
 
-  @ManyToOne(() => User, (user) => user.favoritePlaces, { nullable: false, onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.favoritePlaces, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user!: User;
 }

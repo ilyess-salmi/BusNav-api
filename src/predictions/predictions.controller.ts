@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { PredictionsService } from './predictions.service';
 import { CreatePredictionDto } from './dto/create-prediction.dto';
-// import { UpdatePredictionDto } from './dto/update-prediction.dto';
+import { UpdatePredictionDto } from './dto/update-prediction.dto';
 
 @Controller('predictions')
 export class PredictionsController {
@@ -17,18 +25,21 @@ export class PredictionsController {
     return this.predictionsService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.predictionsService.findOne(+id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.predictionsService.findOne(+id);
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updatePredictionDto: UpdatePredictionDto) {
-  //   return this.predictionsService.update(+id, updatePredictionDto);
-  // }
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updatePredictionDto: UpdatePredictionDto,
+  ) {
+    return this.predictionsService.update(+id, updatePredictionDto);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.predictionsService.remove(+id);
-  // }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.predictionsService.remove(+id);
+  }
 }
