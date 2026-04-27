@@ -4,11 +4,16 @@ import { Repository } from 'typeorm';
 import { Driver } from './entities/driver.entity';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
+import { User } from 'src/users/entities/user.entity';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 @Injectable()
 export class DriversService {
   constructor(
     @InjectRepository(Driver)
-    private repo: Repository<Driver>,
+    private readonly repo: Repository<Driver>,
+
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
   findAll() {
@@ -16,29 +21,52 @@ export class DriversService {
   }
 
   async create(dto: CreateDriverDto) {
-    const driver = this.repo.create({
-      license_number: dto.license_number,
-      user: { user_id: dto.user_id },
+    const user = await this.userRepo.findOne({
+      where: { user_id: dto.user_id },
     });
+    if (!user) throw new NotFoundException(`User ${dto.user_id} not found`);
 
-    return this.repo.save(driver);
+    return this.repo.save(
+      this.repo.create({
+        license_number: dto.license_number,
+        user,
+      }),
+    );
   }
 
-  findOne(id: number) {
-    return this.repo.findOne({
+  async findOne(id: number) {
+    const driver = await this.repo.findOne({
       where: { driver_id: id },
       relations: ['user', 'trips'],
     });
+
+    if (!driver) throw new NotFoundException(`Driver ${id} not found`);
+    return driver;
   }
 
-  update(id: number, dto: UpdateDriverDto) {
-    return this.repo.update(id, {
+  async update(id: number, dto: UpdateDriverDto) {
+    await this.findOne(id);
+
+    let user: User | undefined = undefined;
+    if (dto.user_id) {
+      const foundUser = await this.userRepo.findOne({
+        where: { user_id: dto.user_id },
+      });
+      if (!foundUser)
+        throw new NotFoundException(`User ${dto.user_id} not found`);
+      user = foundUser;
+    }
+
+    await this.repo.update(id, {
       license_number: dto.license_number,
-      user: dto.user_id ? { user_id: dto.user_id } : undefined,
+      user,
     });
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    await this.findOne(id);
     return this.repo.delete(id);
   }
 }

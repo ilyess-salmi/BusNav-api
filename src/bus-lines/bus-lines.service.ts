@@ -4,12 +4,13 @@ import { Repository } from 'typeorm';
 import { BusLine } from './entities/bus-line.entity';
 import { CreateBusLineDto } from './dto/create-bus-line.dto';
 import { UpdateBusLineDto } from './dto/update-bus-line.dto';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 
 @Injectable()
 export class BusLinesService {
   constructor(
     @InjectRepository(BusLine)
-    private repo: Repository<BusLine>,
+    private readonly repo: Repository<BusLine>,
   ) {}
 
   findAll() {
@@ -20,18 +21,24 @@ export class BusLinesService {
     return this.repo.save(this.repo.create(dto));
   }
 
-  findOne(id: number) {
-    return this.repo.findOne({
+  async findOne(id: number) {
+    const line = await this.repo.findOne({
       where: { bus_line_id: id },
       relations: ['buses', 'services'],
     });
+
+    if (!line) throw new NotFoundException(`Bus line ${id} not found`);
+    return line;
   }
 
-  update(id: number, dto: UpdateBusLineDto) {
-    return this.repo.update(id, dto);
+  async update(id: number, dto: UpdateBusLineDto) {
+    await this.findOne(id);
+    await this.repo.update(id, dto);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    await this.findOne(id);
     return this.repo.delete(id);
   }
 }

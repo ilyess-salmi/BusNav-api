@@ -4,11 +4,16 @@ import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { User } from 'src/users/entities/user.entity';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private repo: Repository<Notification>,
+
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
   findAll() {
@@ -16,35 +21,59 @@ export class NotificationsService {
   }
 
   async create(dto: CreateNotificationDto) {
-    const notif = this.repo.create({
-      title: dto.title,
-      message: dto.message,
-      type: dto.type,
-      is_read: dto.is_read ?? false,
-      user: { user_id: dto.user_id },
+    const user = await this.userRepo.findOne({
+      where: { user_id: dto.user_id },
     });
+    if (!user) throw new NotFoundException(`User ${dto.user_id} not found`);
 
-    return this.repo.save(notif);
+    return this.repo.save(
+      this.repo.create({
+        title: dto.title,
+        message: dto.message,
+        type: dto.type,
+        is_read: dto.is_read ?? false,
+        user,
+      }),
+    );
   }
 
-  findOne(id: number) {
-    return this.repo.findOne({
+  async findOne(id: number) {
+    const notification = await this.repo.findOne({
       where: { notif_id: id },
       relations: ['user'],
     });
+
+    if (!notification)
+      throw new NotFoundException(`Notification ${id} not found`);
+    return notification;
   }
 
-  update(id: number, dto: UpdateNotificationDto) {
-    return this.repo.update(id, {
+  async update(id: number, dto: UpdateNotificationDto) {
+    await this.findOne(id);
+
+    let user: User | undefined = undefined;
+    if (dto.user_id) {
+      const FindUser = await this.userRepo.findOne({
+        where: { user_id: dto.user_id },
+      });
+      if (!FindUser)
+        throw new NotFoundException(`User ${dto.user_id} not found`);
+      user = FindUser;
+    }
+
+    await this.repo.update(id, {
       title: dto.title,
       message: dto.message,
       type: dto.type,
       is_read: dto.is_read,
-      user: dto.user_id ? { user_id: dto.user_id } : undefined,
+      user,
     });
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    await this.findOne(id);
     return this.repo.delete(id);
   }
 }

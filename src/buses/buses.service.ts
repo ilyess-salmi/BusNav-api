@@ -2,16 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Bus } from './entities/bus.entity';
+import { BusLine } from 'src/bus-lines/entities/bus-line.entity';
 import { CreateBusDto } from './dto/create-bus.dto';
 import { UpdateBusDto } from './dto/update-bus.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class BusesService {
   constructor(
     @InjectRepository(Bus)
-    private repo: Repository<Bus>,
-  ) {}
+    private readonly repo: Repository<Bus>,
 
+    @InjectRepository(BusLine)
+    private readonly busLineRepo: Repository<BusLine>,
+  ) {}
   findAll() {
     return this.repo.find({
       relations: ['busLine', 'locations', 'trips', 'passes'],
@@ -19,33 +23,59 @@ export class BusesService {
   }
 
   async create(dto: CreateBusDto) {
-    const bus = this.repo.create({
-      plate_number: dto.plate_number,
-      capacity: dto.capacity,
-      status: dto.status,
-      busLine: { bus_line_id: dto.bus_line_id },
+    const busLine = await this.busLineRepo.findOne({
+      where: { bus_line_id: dto.bus_line_id },
     });
 
-    return this.repo.save(bus);
+    if (!busLine) {
+      throw new NotFoundException(`Bus line ${dto.bus_line_id} not found`);
+    }
+    return this.repo.save(
+      this.repo.create({
+        plate_number: dto.plate_number,
+        capacity: dto.capacity,
+        status: dto.status,
+        busLine,
+      }),
+    );
   }
 
-  findOne(id: number) {
-    return this.repo.findOne({
+  async findOne(id: number) {
+    const bus = await this.repo.findOne({
       where: { bus_id: id },
       relations: ['busLine', 'locations', 'trips', 'passes'],
     });
+
+    if (!bus) throw new NotFoundException(`Bus ${id} not found`);
+    return bus;
   }
 
-  update(id: number, dto: UpdateBusDto) {
-    return this.repo.update(id, {
+  async update(id: number, dto: UpdateBusDto) {
+    await this.findOne(id);
+
+    let busLine: BusLine | undefined;
+    if (dto.bus_line_id) {
+      const foundBusLine = await this.busLineRepo.findOne({
+        where: { bus_line_id: dto.bus_line_id },
+      });
+      if (!foundBusLine) {
+        throw new NotFoundException(`Bus line ${dto.bus_line_id} not found`);
+      }
+      busLine = foundBusLine;
+    }
+
+    await this.repo.update(id, {
       plate_number: dto.plate_number,
       capacity: dto.capacity,
       status: dto.status,
-      busLine: dto.bus_line_id ? { bus_line_id: dto.bus_line_id } : undefined,
+      busLine,
     });
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    await this.findOne(id);
     return this.repo.delete(id);
   }
 }
