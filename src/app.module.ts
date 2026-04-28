@@ -16,6 +16,7 @@ import { PassesModule } from './passes/passes.module';
 import { BusLocationsModule } from './bus-locations/bus-locations.module';
 import { TripsModule } from './trips/trips.module';
 import { PredictionsModule } from './predictions/predictions.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { PredictionsModule } from './predictions/predictions.module';
     BusLocationsModule,
     TripsModule,
     PredictionsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
