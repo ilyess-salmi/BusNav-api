@@ -5,10 +5,14 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Bus } from 'src/buses/entities/bus.entity';
+import { BusLinePoint } from '../../bus-line-points/entities/bus-line-point.entity';
 @Entity('bus_lines')
 export class BusLine {
   @PrimaryGeneratedColumn()
   bus_line_id!: number;
+
+  @OneToMany(() => BusLinePoint, (point) => point.bus_line)
+  points!: BusLinePoint[];
 
   @Column({ length: 100 })
   line_name!: string;
