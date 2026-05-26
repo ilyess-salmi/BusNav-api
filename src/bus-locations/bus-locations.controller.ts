@@ -6,14 +6,31 @@ import {
   Patch,
   Param,
   Delete,
+  Sse,
+  MessageEvent,
 } from '@nestjs/common';
 import { BusLocationsService } from './bus-locations.service';
 import { CreateBusLocationDto } from './dto/create-bus-location.dto';
 import { UpdateBusLocationDto } from './dto/update-bus-location.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Observable, fromEvent } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Controller('bus-locations')
 export class BusLocationsController {
-  constructor(private readonly busLocationsService: BusLocationsService) {}
+  constructor(
+    private readonly busLocationsService: BusLocationsService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
+
+  @Sse('stream')
+  stream(): Observable<MessageEvent> {
+    return fromEvent(this.eventEmitter, 'bus.location.updated').pipe(
+      map((data) => ({
+        data: JSON.stringify(data),
+      })),
+    );
+  }
 
   @Post()
   create(@Body() createBusLocationDto: CreateBusLocationDto) {

@@ -18,6 +18,7 @@ import { TripsModule } from './trips/trips.module';
 import { PredictionsModule } from './predictions/predictions.module';
 import { AuthModule } from './auth/auth.module';
 import { BusLinePointsModule } from './bus-line-points/bus-line-points.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { BusLinePointsModule } from './bus-line-points/bus-line-points.module';
     PredictionsModule,
     AuthModule,
     BusLinePointsModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

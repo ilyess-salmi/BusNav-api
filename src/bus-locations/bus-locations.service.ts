@@ -6,6 +6,8 @@ import { Bus } from 'src/buses/entities/bus.entity';
 import { CreateBusLocationDto } from './dto/create-bus-location.dto';
 import { UpdateBusLocationDto } from './dto/update-bus-location.dto';
 import { NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BusLocationUpdatedEvent } from './events/bus-location-updated.event';
 
 @Injectable()
 export class BusLocationsService {
@@ -15,6 +17,8 @@ export class BusLocationsService {
 
     @InjectRepository(Bus)
     private readonly busRepo: Repository<Bus>,
+
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   findAll() {
@@ -24,6 +28,13 @@ export class BusLocationsService {
   async create(dto: CreateBusLocationDto) {
     const bus = await this.busRepo.findOne({ where: { bus_id: dto.bus_id } });
     if (!bus) throw new NotFoundException(`Bus ${dto.bus_id} not found`);
+
+    const event = new BusLocationUpdatedEvent();
+    event.bus_id = dto.bus_id;
+    event.latitude = dto.latitude;
+    event.longitude = dto.longitude;
+    event.speed = dto.speed;
+    this.eventEmitter.emit('bus.location.updated', event);
 
     return this.repo.save(
       this.repo.create({
