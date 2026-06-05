@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { TripsService } from './trips.service';
 import { CreateTripDto } from './dto/create-trip.dto';
@@ -21,8 +22,8 @@ export class TripsController {
   }
 
   @Get()
-  findAll() {
-    return this.tripsService.findAll();
+  findAll(@Query('driver_id') driverId?: string) {
+    return this.tripsService.findAll(driverId ? +driverId : undefined);
   }
 
   @Get(':id')

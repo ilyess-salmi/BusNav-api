@@ -20,8 +20,9 @@ export class TripsService {
     private readonly driverRepo: Repository<Driver>,
   ) {}
 
-  findAll() {
+  findAll(driverId?: number) {
     return this.repo.find({
+      where: driverId ? { driver: { driver_id: driverId } } : {},
       relations: ['bus', 'driver', 'predictions'],
     });
   }
