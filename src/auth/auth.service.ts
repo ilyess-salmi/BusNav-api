@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Driver } from '../drivers/entities/driver.entity';
 
 import { User } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
@@ -23,6 +24,9 @@ export class AuthService {
 
     @InjectRepository(Role)
     private readonly roleRepo: Repository<Role>,
+
+    @InjectRepository(Driver)
+    private readonly driverRepo: Repository<Driver>,
 
     private readonly jwtService: JwtService,
   ) {}
@@ -56,6 +60,7 @@ export class AuthService {
 
     const savedUser = await this.userRepo.save(user);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { user_password, ...userWithoutPassword } = savedUser;
     return userWithoutPassword;
   }
@@ -66,17 +71,22 @@ export class AuthService {
       relations: ['role'],
     });
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const isPasswordValid = await bcrypt.compare(
       dto.user_password,
       user.user_password,
     );
-
-    if (!isPasswordValid) {
+    if (!isPasswordValid)
       throw new UnauthorizedException('Invalid Credentials');
+
+    // 👇 fetch driver_id if role is driver
+    let driverId: number | null = null;
+    if (user.role.role_name === 'driver') {
+      const driver = await this.driverRepo.findOne({
+        where: { user: { user_id: user.user_id } },
+      });
+      driverId = driver?.driver_id ?? null;
     }
 
     const payload = {
@@ -94,6 +104,7 @@ export class AuthService {
         user_email: user.user_email,
         user_phone: user.user_phone,
         role: user.role.role_name,
+        driver_id: driverId, // 👈 null for non-drivers, number for drivers
       },
     };
   }
