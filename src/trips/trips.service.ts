@@ -89,9 +89,13 @@ export class TripsService {
   async findOne(id: number) {
     const trip = await this.repo.findOne({
       where: { trip_id: id },
-      relations: ['bus', 'driver', 'predictions'],
+      relations: [
+        'bus',
+        'bus.busLine', //loads bus_line_id
+        'driver',
+        'predictions',
+      ],
     });
-
     if (!trip) throw new NotFoundException(`Trip ${id} not found`);
     return trip;
   }
