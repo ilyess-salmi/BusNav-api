@@ -1,98 +1,235 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# BusNav — Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A real-time bus navigation and tracking API built with **NestJS**, **TypeORM**, and **MySQL**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Tech Stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **NestJS** — Node.js framework
+- **TypeORM** — ORM for database interactions
+- **MySQL** — relational database
+- **JWT + Passport** — authentication & authorization
+- **bcrypt** — password hashing
+- **@nestjs/event-emitter** — internal event bus for SSE broadcasting
+- **@nestjs/swagger** — API documentation UI
+- **class-validator / class-transformer** — DTO validation
+- **Joi** — environment variable validation
 
-## Project setup
+---
 
-```bash
-$ npm install
-```
+## Prerequisites
 
-## Compile and run the project
+| Tool | Version |
+|------|---------|
+| Node.js | >= 18.x |
+| npm | >= 9.x |
+| MySQL | >= 8.x |
+
+---
+
+## Installation
 
 ```bash
-# development
-$ npm run start
+# Clone the repository
+git clone <repo-url>
+cd busnav-backend
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Install dependencies
+npm install
 ```
 
-## Run tests
+---
+
+## Environment Setup
+
+Create a `.env` file in the project root:
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=your_db_password
+DB_NAME=busnav
+
+JWT_SECRET=bus_nav_super_secret_key
+JWT_EXPIRES_IN=1d
+
+PORT=3003
+```
+
+> **Note:** Never commit `.env` to version control.
+
+---
+
+## Database Setup
+
+1. Create the database in MySQL:
+
+```sql
+CREATE DATABASE busnav;
+```
+
+2. TypeORM will auto-sync the tables on first run (if `synchronize: true` is set in the TypeORM config).
+
+---
+
+## Running the App
 
 ```bash
-# unit tests
-$ npm run test
+# Development (watch mode)
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Production build
+npm run build
+npm run start:prod
 ```
 
-## Deployment
+The API will be available at:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+```
+http://localhost:3003
+```
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Swagger documentation:
 
+```
+http://localhost:3003/api
+```
+
+---
+
+## Project Structure
+
+```
+src/
+  app.module.ts
+  main.ts
+  auth/
+  roles/
+  users/
+  drivers/
+  bus-lines/
+  bus-stops/
+  buses/
+  bus-locations/
+  trips/
+  predictions/
+  service/
+  passes/
+  favorite-places/
+  notifications/
+```
+
+---
+
+## API Overview
+
+### Auth
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | Register a new user |
+| POST | `/auth/login` | Login and receive JWT |
+| GET | `/auth/profile` | Get current user profile (protected) |
+
+**Login response:**
+```json
+{
+  "access_token": "jwt-token",
+  "user": {
+    "user_id": 1,
+    "user_name": "Ali",
+    "user_email": "ali@test.com",
+    "role": "driver",
+    "driver_id": 2
+  }
+}
+```
+
+### Resources (CRUD)
+
+All resources support: `GET /`, `GET /:id`, `POST /`, `PATCH /:id`, `DELETE /:id`
+
+| Resource | Base Path |
+|----------|-----------|
+| Roles | `/roles` |
+| Users | `/users` |
+| Drivers | `/drivers` |
+| Bus Lines | `/bus-lines` |
+| Bus Stops | `/bus-stops` |
+| Buses | `/buses` |
+| Bus Locations | `/bus-locations` |
+| Trips | `/trips` |
+| Predictions | `/predictions` |
+| Service (line ↔ stop) | `/service` |
+| Passes (bus ↔ stop) | `/passes` |
+| Favorite Places | `/favorite-places` |
+| Notifications | `/notifications` |
+
+### Real-Time (SSE)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/bus-locations/stream` | SSE stream of live bus locations |
+
+Connect with:
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+curl -N http://localhost:3003/bus-locations/stream
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Every `POST /bus-locations` automatically broadcasts to all SSE clients.
 
-## Resources
+### Trips Filter
 
-Check out a few resources that may come in handy when working with NestJS:
+```
+GET /trips                  → all trips
+GET /trips?driver_id=2      → trips assigned to driver 2
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## Authentication
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Protected routes require a Bearer token in the `Authorization` header:
 
-## Stay in touch
+```
+Authorization: Bearer <access_token>
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Roles
 
-## License
+| Role | Permissions |
+|------|------------|
+| `admin` | Manage users, drivers, buses, bus lines, bus stops, trips |
+| `driver` | View assigned trips, update trip status, post bus location |
+| `user` | View lines/stops/predictions, manage favorites, see notifications |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## Testing Order (Postman)
+
+Because tables are relational, seed data in this order:
+
+1. `POST /roles`
+2. `POST /auth/register` (creates users)
+3. `POST /drivers`
+4. `POST /bus-lines`
+5. `POST /bus-stops`
+6. `POST /buses`
+7. `POST /service`
+8. `POST /passes`
+9. `POST /bus-locations`
+10. `POST /trips`
+11. `POST /predictions`
+
+---
+
+## .gitignore
+
+```
+node_modules/
+dist/
+.env
+coverage/
+```
