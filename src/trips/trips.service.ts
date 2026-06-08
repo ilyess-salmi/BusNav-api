@@ -23,7 +23,7 @@ export class TripsService {
   findAll(driverId?: number) {
     return this.repo.find({
       where: driverId ? { driver: { driver_id: driverId } } : {},
-      relations: ['bus', 'driver', 'predictions'],
+      relations: ['bus', 'bus.busLine', 'driver', 'predictions'],
     });
   }
 
