@@ -31,6 +31,7 @@ export class BusLocationsService {
 
     const event = new BusLocationUpdatedEvent();
     event.bus_id = dto.bus_id;
+    event.plate_number = bus.plate_number;
     event.latitude = dto.latitude;
     event.longitude = dto.longitude;
     event.speed = dto.speed;

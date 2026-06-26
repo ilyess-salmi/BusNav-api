@@ -20,6 +20,11 @@ export class BusesController {
     return this.busesService.create(createBusDto);
   }
 
+  @Get('admin')
+  findAllAdmin() {
+    return this.busesService.findAllAdmin();
+  }
+
   @Get()
   findAll() {
     return this.busesService.findAll();

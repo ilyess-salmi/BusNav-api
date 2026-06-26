@@ -15,7 +15,7 @@ export class Trip {
   @PrimaryGeneratedColumn()
   trip_id!: number;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', nullable: true })
   start_time!: Date;
 
   @Column({ type: 'datetime', nullable: true })

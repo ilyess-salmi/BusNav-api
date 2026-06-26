@@ -16,6 +16,11 @@ export class BusesService {
     @InjectRepository(BusLine)
     private readonly busLineRepo: Repository<BusLine>,
   ) {}
+  findAllAdmin() {
+    return this.repo.find({
+      relations: ['busLine'],
+    });
+  }
   findAll() {
     return this.repo.find({
       relations: ['busLine', 'locations', 'trips', 'passes'],
