@@ -2,6 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from 
 import { BusLinePointsService } from './bus-line-points.service';
 import { CreateBusLinePointDto } from './dto/create-bus-line-point.dto';
 import { UpdateBusLinePointDto } from './dto/update-bus-line-point.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('bus-line-points')
 export class BusLinePointsController {
@@ -23,11 +27,16 @@ export class BusLinePointsController {
   // }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBusLinePointDto: UpdateBusLinePointDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateBusLinePointDto: UpdateBusLinePointDto,
+  ) {
     return this.busLinePointsService.update(+id, updateBusLinePointDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   remove(@Param('id') id: string) {
     return this.busLinePointsService.remove(+id);
   }

@@ -15,6 +15,10 @@ import { UpdateBusLocationDto } from './dto/update-bus-location.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Observable, fromEvent } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('bus-locations')
 export class BusLocationsController {
@@ -56,6 +60,8 @@ export class BusLocationsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   remove(@Param('id') id: string) {
     return this.busLocationsService.remove(+id);
   }

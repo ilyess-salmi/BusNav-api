@@ -11,6 +11,7 @@ import { Driver } from 'src/drivers/entities/driver.entity';
 import { FavoritePlace } from 'src/favorite-places/entities/favorite-place.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
 import { Role } from 'src/roles/entities/role.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -24,6 +25,7 @@ export class User {
   user_email!: string;
 
   @Column({ length: 255 })
+  @Exclude()
   user_password!: string;
 
   @Column({ length: 20, nullable: true })

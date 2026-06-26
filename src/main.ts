@@ -1,13 +1,13 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: '*',  // ← mettre * pendant le développement
+    origin: '*', // ← mettre * pendant le développement
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization, Accept',
     preflightContinue: false,
@@ -21,6 +21,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // eslint-disable-next-line prettier/prettier
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+  );
+
   const config = new DocumentBuilder()
     .setTitle('BusNav API')
     .setDescription('API documentation')

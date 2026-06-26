@@ -16,8 +16,11 @@ export class FavoritePlacesService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  findAll() {
-    return this.repo.find({ relations: ['user'] });
+  findAll(userId?: number) {
+    return this.repo.find({
+      where: userId ? { user: { user_id: userId } } : {},
+      relations: ['user'],
+    });
   }
 
   async create(dto: CreateFavoritePlaceDto) {
@@ -42,17 +45,16 @@ export class FavoritePlacesService {
   async update(id: number, dto: UpdateFavoritePlaceDto) {
     await this.findOne(id);
 
-    let user: User | undefined = undefined;
-    if (dto.user_id) {
-      const foundUser = await this.userRepo.findOne({
-        where: { user_id: dto.user_id },
-      });
-      if (!foundUser)
-        throw new NotFoundException(`User ${dto.user_id} not found`);
+    const { user_id, ...rest } = dto;
+
+    let user: User | undefined;
+    if (user_id) {
+      const foundUser = await this.userRepo.findOne({ where: { user_id } });
+      if (!foundUser) throw new NotFoundException(`User ${user_id} not found`);
       user = foundUser;
     }
 
-    await this.repo.update(id, { ...dto, user });
+    await this.repo.update(id, { ...rest, ...(user && { user }) });
     return this.findOne(id);
   }
 
